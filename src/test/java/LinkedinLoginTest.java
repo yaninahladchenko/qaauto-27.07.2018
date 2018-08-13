@@ -11,44 +11,73 @@ import org.testng.annotations.Test;
 public class LinkedinLoginTest {
 
     WebDriver browser;
+    LinkedinLoginPage linkedinLoginPage;
+
     @BeforeMethod
-    public void beforeMethod(){
+    public void beforeMethod() {
         browser = new FirefoxDriver();
         browser.get("https://www.linkedin.com/");
+        linkedinLoginPage = new LinkedinLoginPage(browser);
+
     }
+
     @AfterMethod
-    public  void  afterMethod(){
+    public void afterMethod() {
         browser.close();
     }
+
     @Test
-    public void  successfulLoginTest() {
-        LinkedinLoginPage linkedinLoginPage = new LinkedinLoginPage(browser);
+    public void successfulLoginTest() {
         linkedinLoginPage.login("linkedin.tst.yanina@gmail.com", "Yanina123");
-        //sleep(3000);
-        String pageTitle = browser.getTitle();
-        String pageUrl = browser.getCurrentUrl();
-        Assert.assertEquals(pageTitle, "LinkedIn", "Home page title is wrong.");
-        Assert.assertEquals(pageUrl, "https://www.linkedin.com/feed/", "Home page URL is wrong");
         LinkedinHomePage linkedinHomePage = new LinkedinHomePage(browser);
-        Assert.assertTrue(linkedinHomePage.isProfileNavigationItemDisplayed(), "'profileNavigationItem' is not displayed");
+        Assert.assertTrue(linkedinHomePage.isLoaded(), "Homepage is not loaded");
     }
 
     @Test
-    public void  negativeLoginTest() {
-        WebElement userEmailField = browser.findElement(By.xpath("//input[@id=\"login-email\"]"));
-        WebElement userPasswordField = browser.findElement(By.xpath("//input[@id=\"login-password\"]"));
-        WebElement signInButton = browser.findElement(By.xpath("//input[@id=\"login-submit\"]"));
-        userEmailField.sendKeys("a@b.c");
-        userPasswordField.sendKeys("wrong");
-        signInButton.click();
-        //sleep(3000);
-        WebElement alertBox = browser.findElement (By.xpath("//*[@role='alert']"));
-        Assert.assertEquals(alertBox.getText(),
+    public void negativeLoginTest() {
+        linkedinLoginPage.login("a@b.c", "wrong");
+        LinkedinLoginSubmitPage linkedinLoginSubmitPage = new LinkedinLoginSubmitPage(browser);
+
+        Assert.assertEquals(linkedinLoginSubmitPage.getAlertBoxText(),
                 "There were one or more errors in your submission. Please correct the marked fields below.",
                 "Alert box has incorrect message");
+    }
+
+    @Test
+    public void loginTestWithEmptyEmailAndPasswordFields() {
+        linkedinLoginPage.login("", "");
+        Assert.assertTrue(linkedinLoginPage.isLoaded(), "LinkedinLoginPage is not loaded");
+    }
 
 
+    @Test
+    public void loginTestWithWrongEmailAndPasswordFields() {
+        linkedinLoginPage.login("@ukr.net", "wrongpass");
+        LinkedinLoginSubmitPage linkedinLoginSubmitPage = new LinkedinLoginSubmitPage(browser);
 
+        Assert.assertEquals(linkedinLoginSubmitPage.getWrongEmailErrorText(),
+                "Please enter a valid email address.",
+                "Wrong Email error is incorrect");
+
+        linkedinLoginSubmitPage.setSignInButton();
+        Assert.assertEquals(linkedinLoginSubmitPage.getWrongPasswordErrorText(),
+                "Please enter a password.",
+                "Wrong Password error is incorrect");
+     }
+
+    @Test
+    public void loginTestWithTooShortEmailAndPassword() {
+        linkedinLoginPage.login("q", "1");
+        LinkedinLoginSubmitPage linkedinLoginSubmitPage = new LinkedinLoginSubmitPage(browser);
+
+        Assert.assertEquals(linkedinLoginSubmitPage.getTooShortEmailErrorText(),
+                "The text you provided is too short (the minimum length is 3 characters, your text contains 1 character).",
+                "Too short Email error is incorrect");
+
+        Assert.assertEquals(linkedinLoginSubmitPage.getTooShortPasswordErrorText(),
+                "The password you provided must have at least 6 characters.",
+                "Too short Password error is incorrect");
 
     }
 }
+
