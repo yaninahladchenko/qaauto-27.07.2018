@@ -43,14 +43,25 @@ public class LinkedinLoginSubmitPage {
         return wrongPasswordError.getText();
     }
 
-    public String getTooShortEmailErrorText() {
+    public String getUseShortEmailValidationText() {
         return tooShortEmailError.getText();
     }
 
-    public String getTooShortPasswordErrorText() {
+    public String getUserShortPasswordValidationText() {
         return tooShortPasswordError.getText();
     }
     public void setSignInButton() {
         signInButton.click();
+    }
+    public String getCurrentPageTitle(){
+        return browser.getTitle();
+    }
+    public String getCurrentPageUrl() {
+        return browser.getCurrentUrl();
+    }
+    public boolean isLoaded() {
+        return  alertBox.isDisplayed()
+                && getCurrentPageTitle().contains("Sign In to LinkedIn")
+                && getCurrentPageUrl().contains("https://www.linkedin.com/uas/login-submit");
     }
 }

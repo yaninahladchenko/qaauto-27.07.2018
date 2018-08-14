@@ -42,9 +42,6 @@ public class LinkedinLoginPage {
     }
     public boolean isLoaded() {
         return userEmailField.isDisplayed()
-                && getCurrentPageTitle().contains("LinkedIn: Log In or Sign Up")
-                && getCurrentPageUrl().contains("linkedin.com");
-
-
+                && getCurrentPageTitle().contains("LinkedIn: Log In or Sign Up");
     }
 }

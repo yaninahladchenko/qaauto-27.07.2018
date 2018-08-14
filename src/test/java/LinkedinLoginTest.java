@@ -5,6 +5,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 
@@ -26,9 +27,17 @@ public class LinkedinLoginTest {
         browser.close();
     }
 
-    @Test
-    public void successfulLoginTest() {
-        linkedinLoginPage.login("linkedin.tst.yanina@gmail.com", "Yanina123");
+    @DataProvider
+    public Object[][] validFieldsCombination() {
+        return new Object[][]{
+                { "linkedin.tst.yanina@gmail.com", "Yanina123"},
+                { "linkedin.TST.yanina@gmail.com", "Yanina123"},
+        };
+    }
+
+    @Test (dataProvider = "validFieldsCombination")
+    public void successfulLoginTest(String userEmail, String userPass) {
+        linkedinLoginPage.login(userEmail, userPass);
         LinkedinHomePage linkedinHomePage = new LinkedinHomePage(browser);
         Assert.assertTrue(linkedinHomePage.isLoaded(), "Homepage is not loaded");
     }
@@ -43,10 +52,19 @@ public class LinkedinLoginTest {
                 "Alert box has incorrect message");
     }
 
-    @Test
-    public void loginTestWithEmptyEmailAndPasswordFields() {
-        linkedinLoginPage.login("", "");
-        Assert.assertTrue(linkedinLoginPage.isLoaded(), "LinkedinLoginPage is not loaded");
+    @DataProvider
+    public Object[][] EmptyFieldsCombination() {
+        return new Object[][]{
+                { "", ""},
+                { "", "P@ssword123"},
+                { "someone@domain.com", ""}
+        };
+    }
+
+    @Test(dataProvider = "EmptyFieldsCombination")
+    public void validateEmptyUserEmailAndUserPassword(String userEmail, String userPass) {
+        linkedinLoginPage.login(userEmail, userPass);
+        Assert.assertTrue(linkedinLoginPage.isLoaded(), "User is not on Login page.");
     }
 
 
@@ -66,15 +84,19 @@ public class LinkedinLoginTest {
      }
 
     @Test
-    public void loginTestWithTooShortEmailAndPassword() {
+    public void validateShortUserEmailAndPassword() {
         linkedinLoginPage.login("q", "1");
         LinkedinLoginSubmitPage linkedinLoginSubmitPage = new LinkedinLoginSubmitPage(browser);
+        Assert.assertTrue(linkedinLoginSubmitPage.isLoaded(), "User is not on LoginSubmit page");
+        Assert.assertEquals(linkedinLoginSubmitPage.getAlertBoxText(),
+        "There were one or more errors in your submission. Please correct the marked fields below.",
+                "Alert box has incorrect message.");
 
-        Assert.assertEquals(linkedinLoginSubmitPage.getTooShortEmailErrorText(),
+        Assert.assertEquals(linkedinLoginSubmitPage.getUseShortEmailValidationText(),
                 "The text you provided is too short (the minimum length is 3 characters, your text contains 1 character).",
                 "Too short Email error is incorrect");
 
-        Assert.assertEquals(linkedinLoginSubmitPage.getTooShortPasswordErrorText(),
+        Assert.assertEquals(linkedinLoginSubmitPage.getUserShortPasswordValidationText(),
                 "The password you provided must have at least 6 characters.",
                 "Too short Password error is incorrect");
 
