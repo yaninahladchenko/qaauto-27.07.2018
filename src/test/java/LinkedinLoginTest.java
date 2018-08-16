@@ -68,38 +68,47 @@ public class LinkedinLoginTest {
     }
 
 
-    @Test
-    public void loginTestWithWrongEmailAndPasswordFields() {
-        linkedinLoginPage.login("@ukr.net", "wrongpass");
-        LinkedinLoginSubmitPage linkedinLoginSubmitPage = new LinkedinLoginSubmitPage(browser);
+    @DataProvider
+    public Object[][] invalidLoginErrorMessages() {
+        return new Object[][]{
+                { "a",
+                        "a",
+                        "The text you provided is too short (the minimum length is 3 characters, your text contains 1 character).",
+                        "The password you provided must have at least 6 characters."},
+                { "linkedin.tst.yanina@gmail.com",
+                        "YANINA123",
+                        "",
+                        "Hmm, that's not the right password. Please try again or request a new one."},
+                { "linkedin.yanina@gmail.com",
+                        "Yanina123",
+                        "Hmm, we don't recognize that email. Please try again.",
+                        ""},
+                { "@ukr.net",
+                        "wrongpass",
+                        "Please enter a valid email address.",
+                        ""},
+                {"dgdhfgdfgghghgygyghgkhjhgfjhfyfuyffghghfghjfjhhgghgcghfhffhkhjghgff1234567898765fghvbfvbhgfvbhgfvbhgvbhg@hjhhhgkhjgkjhgkjg.bjkhjg",
+                        "Yanina123",
+                        "The text you provided is too long (the maximum length is 128 characters, your text contains 129 characters).",
+                        ""},
+        };
+    }
 
-        Assert.assertEquals(linkedinLoginSubmitPage.getWrongEmailErrorText(),
-                "Please enter a valid email address.",
-                "Wrong Email error is incorrect");
-
-        linkedinLoginSubmitPage.setSignInButton();
-        Assert.assertEquals(linkedinLoginSubmitPage.getWrongPasswordErrorText(),
-                "Please enter a password.",
-                "Wrong Password error is incorrect");
-     }
-
-    @Test
-    public void validateShortUserEmailAndPassword() {
-        linkedinLoginPage.login("q", "1");
+    @Test(dataProvider = "invalidLoginErrorMessages")
+    public void validateShortUserEmailAndPassword(String userEmail, String userPass,String emailErrorMessage, String passwordErrorMessage){
+        linkedinLoginPage.login(userEmail, userPass);
         LinkedinLoginSubmitPage linkedinLoginSubmitPage = new LinkedinLoginSubmitPage(browser);
         Assert.assertTrue(linkedinLoginSubmitPage.isLoaded(), "User is not on LoginSubmit page");
         Assert.assertEquals(linkedinLoginSubmitPage.getAlertBoxText(),
-        "There were one or more errors in your submission. Please correct the marked fields below.",
+                "There were one or more errors in your submission. Please correct the marked fields below.",
                 "Alert box has incorrect message.");
 
-        Assert.assertEquals(linkedinLoginSubmitPage.getUseShortEmailValidationText(),
-                "The text you provided is too short (the minimum length is 3 characters, your text contains 1 character).",
-                "Too short Email error is incorrect");
-
-        Assert.assertEquals(linkedinLoginSubmitPage.getUserShortPasswordValidationText(),
-                "The password you provided must have at least 6 characters.",
-                "Too short Password error is incorrect");
-
+        Assert.assertEquals(linkedinLoginSubmitPage.getEmailErrorMessageText(), emailErrorMessage,
+                "Email error is incorrect");
+        Assert.assertEquals(linkedinLoginSubmitPage.getPasswordErrorMessageText(), passwordErrorMessage,
+                "Password error is incorrect");
     }
+
+
 }
 
