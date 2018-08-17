@@ -1,6 +1,4 @@
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
@@ -37,15 +35,13 @@ public class LinkedinLoginTest {
 
     @Test (dataProvider = "validFieldsCombination")
     public void successfulLoginTest(String userEmail, String userPass) {
-        linkedinLoginPage.login(userEmail, userPass);
-        LinkedinHomePage linkedinHomePage = new LinkedinHomePage(browser);
+        LinkedinHomePage linkedinHomePage = linkedinLoginPage.loginReturnHomePage(userEmail, userPass);
         Assert.assertTrue(linkedinHomePage.isLoaded(), "Homepage is not loaded");
     }
 
     @Test
     public void negativeLoginTest() {
-        linkedinLoginPage.login("a@b.c", "wrong");
-        LinkedinLoginSubmitPage linkedinLoginSubmitPage = new LinkedinLoginSubmitPage(browser);
+        LinkedinLoginSubmitPage linkedinLoginSubmitPage = linkedinLoginPage.loginReturnLoginSubmitPage("a@b.c", "wrong");
 
         Assert.assertEquals(linkedinLoginSubmitPage.getAlertBoxText(),
                 "There were one or more errors in your submission. Please correct the marked fields below.",
@@ -63,7 +59,7 @@ public class LinkedinLoginTest {
 
     @Test(dataProvider = "EmptyFieldsCombination")
     public void validateEmptyUserEmailAndUserPassword(String userEmail, String userPass) {
-        linkedinLoginPage.login(userEmail, userPass);
+        linkedinLoginPage.loginReturnLoginPage(userEmail, userPass);
         Assert.assertTrue(linkedinLoginPage.isLoaded(), "User is not on Login page.");
     }
 
@@ -95,17 +91,16 @@ public class LinkedinLoginTest {
     }
 
     @Test(dataProvider = "invalidLoginErrorMessages")
-    public void validateShortUserEmailAndPassword(String userEmail, String userPass,String emailErrorMessage, String passwordErrorMessage){
-        linkedinLoginPage.login(userEmail, userPass);
-        LinkedinLoginSubmitPage linkedinLoginSubmitPage = new LinkedinLoginSubmitPage(browser);
+    public void validateUserEmailAndPassword(String userEmail, String userPass,String userEmailValidationText, String userPassValidationText){
+        LinkedinLoginSubmitPage linkedinLoginSubmitPage = linkedinLoginPage.loginReturnLoginSubmitPage(userEmail, userPass);
         Assert.assertTrue(linkedinLoginSubmitPage.isLoaded(), "User is not on LoginSubmit page");
         Assert.assertEquals(linkedinLoginSubmitPage.getAlertBoxText(),
                 "There were one or more errors in your submission. Please correct the marked fields below.",
                 "Alert box has incorrect message.");
 
-        Assert.assertEquals(linkedinLoginSubmitPage.getEmailErrorMessageText(), emailErrorMessage,
+        Assert.assertEquals(linkedinLoginSubmitPage.getEmailErrorMessageText(), userEmailValidationText,
                 "Email error is incorrect");
-        Assert.assertEquals(linkedinLoginSubmitPage.getPasswordErrorMessageText(), passwordErrorMessage,
+        Assert.assertEquals(linkedinLoginSubmitPage.getPasswordErrorMessageText(), userPassValidationText,
                 "Password error is incorrect");
     }
 
