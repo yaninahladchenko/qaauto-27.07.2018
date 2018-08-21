@@ -9,4 +9,5 @@ public abstract class BasePage {
         return browser.getCurrentUrl();
     }
     public abstract boolean isLoaded();
+
 }

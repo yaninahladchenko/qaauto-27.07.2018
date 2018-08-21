@@ -1,26 +1,28 @@
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 
 public class LinkedinLoginSubmitPage extends BasePage{
 
+    @FindBy (xpath ="//*[@role='alert']")
     private WebElement alertBox;
+
+    @FindBy (xpath ="//*[@id='btn-primary']")
     private WebElement signInButton;
+
+    @FindBy(xpath ="//span[@id='session_key-login-error']")
     private WebElement userEmailValidationText;
+
+    @FindBy (xpath ="//span[@id='session_password-login-error']")
     private WebElement userPassValidationText;
 
 
     public LinkedinLoginSubmitPage(WebDriver browser) {
         this.browser = browser;
-        initElements();
+        PageFactory.initElements(browser, this);
     }
 
-    private void initElements() {
-        alertBox = browser.findElement(By.xpath("//*[@role='alert']"));
-        signInButton = browser.findElement(By.xpath("//*[@id='btn-primary']"));
-        userEmailValidationText = browser.findElement(By.xpath("//span[@id='session_key-login-error']"));
-        userPassValidationText = browser.findElement(By.xpath("//span[@id='session_password-login-error']"));
-    }
 
     public String getAlertBoxText() {
         return alertBox.getText();
