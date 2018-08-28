@@ -17,10 +17,18 @@ public class LinkedinLoginPage extends BasePage{
     @FindBy (xpath = "//input[@id='login-submit']" )
     private WebElement signInButton;
 
+    @FindBy (xpath = "//a[@class='link-forgot-password']")
+    private  WebElement forgotPasswordLink;
+
 
     public LinkedinLoginPage(WebDriver browser) {
         this.browser = browser;
         PageFactory.initElements(browser, this);
+    }
+
+    public ForgotPasswordPage clickOnForgotPasswordLink() {
+        forgotPasswordLink.click();
+        return new ForgotPasswordPage(browser);
     }
 
 
@@ -35,6 +43,7 @@ public class LinkedinLoginPage extends BasePage{
         }
         return new LinkedinLoginSubmitPage(browser);
     }
+
     public LinkedinHomePage loginReturnHomePage(String userEmail, String userPass){
         userEmailField.sendKeys(userEmail);
         userPasswordField.sendKeys(userPass);
@@ -46,6 +55,7 @@ public class LinkedinLoginPage extends BasePage{
         }
         return new LinkedinHomePage(browser);
     }
+
     public LinkedinLoginPage loginReturnLoginPage(String userEmail, String userPass){
         userEmailField.sendKeys(userEmail);
         userPasswordField.sendKeys(userPass);
@@ -57,6 +67,7 @@ public class LinkedinLoginPage extends BasePage{
         }
         return new LinkedinLoginPage(browser);
     }
+
     public boolean isLoaded() {
         return userEmailField.isDisplayed()
                 && getCurrentPageTitle().contains("LinkedIn: Log In or Sign Up");
